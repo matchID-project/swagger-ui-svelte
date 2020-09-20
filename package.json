@@ -1,5 +1,11 @@
 {
   "name": "swagger-ui-svelte",
+  "description": "Light version of swagger UI using Svelte framework",
+  "keywords": "swagger, svelte, swagger-ui, docs, api",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/matchid-project/swagger-ui-svelte.git"
+  },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "svelte": "src/SwaggerUISvelte.svelte",
