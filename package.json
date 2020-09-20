@@ -1,6 +1,6 @@
 {
-  "name": "svelte-app",
-  "version": "1.0.0",
+  "name": "swagger-ui-svelte",
+  "version": "0.0.1",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -27,5 +27,9 @@
   },
   "dependencies": {
     "sirv-cli": "^1.0.0"
-  }
+  },
+  "files": [
+    "src",
+    "public"
+  ]
 }

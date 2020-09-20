@@ -1,0 +1,60 @@
+name: Node.js Package
+
+
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches:    
+      - '**'         # Push events on all branchs
+    tags:        
+      - v*           # Push events with tags starting with v
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install node requirements
+        run: npm ci
+      - name: 🏗 Build html
+        run: NODE_ENV=production npm run build
+      - name: 🚀 Deploy to GitHub pages
+        if: startsWith(github.event.ref, 'refs/tags') || steps.extract_branch.outputs.branch == 'master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_branch: gh-pages
+          publish_dir: ./public
+          force_orphan: true
+      - run: npm publish
+        if: startsWith(github.event.ref, 'refs/tags')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: 🔖Publish Release
+        if: startsWith(github.event.ref, 'refs/tags')
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
