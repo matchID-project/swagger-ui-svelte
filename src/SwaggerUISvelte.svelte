@@ -17,6 +17,14 @@
 
 </script>
 
+<svelte:head>
+  {#if swagger}
+    <title>{swagger.info.title}</title>
+  {:else}
+    <title>Swagger UI using Svelte</title>
+  {/if}
+</svelte:head>
+
 <main>
   <section class="section">
     <div class="container">
