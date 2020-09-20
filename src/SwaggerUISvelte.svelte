@@ -8,8 +8,12 @@
   onMount(async () => {
     const res = await fetch(swagger_url)
     swagger = await res.json()
-    console.log(swagger);
   })
+
+  const getSchema = (refName) => {
+    const division = refName.replace("#/", "").split("/")
+    return swagger[division[0]][division[1]][division[2]]
+  }
 
 </script>
 
@@ -32,9 +36,66 @@
                   </a>
                 </div>
                 <div class="swagger-method-details open" class:open={active[`${routeIdx}`]} >
+                  {#if method[1].requestBody && method[1].requestBody.content}
+                  {#each Object.entries(method[1].requestBody.content) as requestBody }
+                    <div class="swagger-parameters">
+                      <h4 class="subtitle">Request Body - {requestBody[0]}</h4>
+                      <div class="table-container">
+                      <table class="table is-hoverable is-fullwidth">
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <tr>
+                        </thead>
+                        <tbody>
+                          {#if '$ref' in requestBody[1]["schema"]}
+                            {#each Object.entries(getSchema(requestBody[1]["schema"]["$ref"]).properties) as property}
+                            <tr>
+                              <td>
+                                <span>
+                                  { property[0] }
+                                </span>
+                              </td>
+                              <td>{@html property[1].description }</td>
+                              <td>
+                                {#if property[1].type}
+                                  { property[1].type}
+                                {:else}
+                                  String
+                                {/if}
+                              </td>
+                            </tr>
+                          {/each}
+                          {:else}
+                          {#each Object.entries(requestBody[1]["schema"]["properties"]) as property}
+                            <tr>
+                              <td>
+                                <span>
+                                  { property[0] }
+                                </span>
+                              </td>
+                              <td>{@html property[1].description }</td>
+                              <td>
+                                {#if property[1].type}
+                                  { property[1].type}
+                                {:else}
+                                  String
+                                {/if}
+                              </td>
+                            </tr>
+                          {/each}
+                          {/if}
+                        </tbody>
+                      </table>
+                      </div>
+                    </div>
+                  {/each}
+                  {/if}
                   {#if method[1].parameters}
                     <div class="swagger-parameters">
-                      <h4>Parameters</h4>
+                      <h4 class="subtitle">Parameters</h4>
                       <div class="table-container">
                       <table class="table is-hoverable">
                         <thead>
