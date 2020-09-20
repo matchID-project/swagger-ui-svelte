@@ -3,7 +3,7 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "svelte": "src/SwaggerUISvelte.svelte",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
