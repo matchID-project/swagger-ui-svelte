@@ -33,6 +33,7 @@
   },
   "files": [
     "src",
+    "dist",
     "public"
   ]
 }

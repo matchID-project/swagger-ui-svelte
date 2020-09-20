@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   export let swagger_url = 'swagger-example.json';
 
+  let active = {};
   let swagger;
 
   onMount(async () => {
@@ -17,22 +18,24 @@
     <div class="container">
       {#if swagger}
         <h1 class="title">{swagger.info.title}!</h1>
-        {#each Object.entries(swagger.paths) as route}
+        {#each Object.entries(swagger.paths) as route, routeIdx}
           <div class="swagger-paths is-small">
             <h3 class="title is-small is-3">{ route[0] }</h3>
-            {#each Object.entries(route[1]) as method}
+            {#each Object.entries(route[1]) as method, methodIdx}
               <div class="swagger-method swagger-method-{ method[0] }">
-                <div class="swagger-method-title">
+                <div class="swagger-method-title" on:click="{() =>  active[`${routeIdx}`] = !active[`${routeIdx}`]}">
                   <a class="swagger-method-link" href="{null}">
                     <span class="swagger-method-name">{ method[0] }</span>
-                    { method[1].summary }
+                    {#if method[1].summary}
+                      { method[1].summary }
+                    {/if}
                   </a>
                 </div>
-                <div class="swagger-method-details">
+                <div class="swagger-method-details open" class:open={active[`${routeIdx}`]} >
                   {#if method[1].parameters}
                     <div class="swagger-parameters">
                       <h4>Parameters</h4>
-                      <table class="table swagger-parameters-table">
+                      <table class="table is-hoverable">
                         <thead>
                           <tr>
                             <th>Name</th>
@@ -56,7 +59,7 @@
                                 {/if}
                               </td>
                               <td>{ parameter.in }</td>
-                              <td>{ parameter.description }</td>
+                              <td>{@html parameter.description }</td>
                               <td>
                                 {#if parameter.type}
                                   { parameter.type}
