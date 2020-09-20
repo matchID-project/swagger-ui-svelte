@@ -21,7 +21,7 @@
   <section class="section">
     <div class="container">
       {#if swagger}
-        <h1 class="title">{swagger.info.title}!</h1>
+        <h1 class="title">{swagger.info.title}</h1>
         {#each Object.entries(swagger.paths) as route, routeIdx}
           <div class="swagger-paths is-small">
             <h3 class="title is-small is-3">{ route[0] }</h3>

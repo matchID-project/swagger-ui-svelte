@@ -15,6 +15,7 @@ const production = !process.env.ROLLUP_WATCH;
 const purgecss = require("@fullhuman/postcss-purgecss")({
   content: ["./src/**/*.svelte", "./src/**/*.html"],
   whitelistPatterns: [/^swagger/],
+  whitelist: ['body'],
   defaultExtractor: content => content.match(/[A-Za-z0-9-_:/]+/g) || []
 });
 
