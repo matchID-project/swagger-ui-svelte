@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   export let swagger_url = 'swagger-example.json';
 
-  let swagger: any;
+  let swagger;
 
   onMount(async () => {
     const res = await fetch(swagger_url)

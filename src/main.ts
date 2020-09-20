@@ -1,11 +1,8 @@
-import App from './App.svelte';
+import SwaggerUISvelte from './SwaggerUISvelte.svelte';
 import './scss/global.scss'
 
-const app = new App({
+const app = new SwaggerUISvelte({
 	target: document.body,
-	props: {
-		name: 'world'
-	}
 });
 
 export default app;

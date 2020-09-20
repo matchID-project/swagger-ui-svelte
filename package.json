@@ -1,5 +1,8 @@
 {
   "name": "swagger-ui-svelte",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "svelte": "src/SwaggerUISvelte.svelte",
   "version": "0.0.2",
   "scripts": {
     "build": "rollup -c",
