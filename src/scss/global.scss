@@ -1,4 +1,6 @@
 @charset "utf-8";
+@import "./node_modules/bulma/sass/utilities/_all.sass";
+@import "./node_modules/bulma/sass/base/_all.sass";
 
 // Set your brand colors
 $brown: #723122; 
@@ -17,6 +19,131 @@ $input-border-color: transparent;
 $input-background-color: $brown-light;
 $input-shadow: none;
 
+
+// Swagger
+$swagger-base-font-size: 16px;
+$swagger-spacing-unit: 30px;
+
+@mixin swagger-method($color) {
+    border: 1px solid $color;
+
+    .swagger-method-title {
+        background: lighten($color, 30%);
+    }
+
+    .swagger-method-link {
+        color: darken($color, 20%);
+    }
+
+    .swagger-method-name {
+        background: $color;
+    }
+}
+
+
+.swagger-paths {
+    // font-size: $swagger-base-font-size * 1.2;
+    margin: 60px 0 10px 0;
+}
+
+.swagger-method {
+    padding: 0;
+    margin: 10px 0;
+    border-radius: 5px;
+
+}
+
+.swagger-method-title {
+    font-size: $swagger-base-font-size !important;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+.swagger-method-link {
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.swagger-method-name {
+    padding: 6px 0;
+    display: inline-block;
+    width: 80px;
+    text-align: center;
+    color: $white;
+    margin-right: 10px;
+}
+
+.swagger-method-get {
+    @include swagger-method(#6BBD5B);
+}
+
+.swagger-method-post {
+    @include swagger-method(#248FB2);
+}
+
+.swagger-method-put {
+    @include swagger-method(#9B708B);
+}
+
+.swagger-method-patch {
+    @include swagger-method(#D88541);
+}
+
+.swagger-method-delete {
+    @include swagger-method(#E27A7A);
+}
+
+.swagger-method-details {
+    margin: 0;
+    padding: 15px;
+    display: none;
+
+    &.open {
+        display: block;
+    }
+}
+
+.swagger-response {
+    font-size: $swagger-base-font-size;
+
+    h5 {
+        margin: 10px 0 5px 0;
+    }
+}
+
+.swagger-response-code {
+    font-weight: 600;
+
+    &:after {
+        content: ' — ';
+    }
+}
+
+// .swagger-parameters-table {
+//     border-spacing: 0px;
+//     border-collapse: collapse;
+//     margin-bottom: $swagger-spacing-unit;
+//     width: 100%;
+//
+//     th, td {
+//         border: 1px solid darken($grey-light, 5%);
+//         padding: 4px 10px;
+//     }
+//
+//     th {
+//         background: lighten($grey-light, 6%);
+//     }
+// }
+
+.swagger-parameter-required {
+    &:after {
+        content: ' *';
+        color: red;
+    }
+}
+
+
 // Import only what you need from Bulma
 @import "./node_modules/bulma/sass/utilities/_all.sass";
 @import "./node_modules/bulma/sass/base/_all.sass";
@@ -26,3 +153,4 @@ $input-shadow: none;
 @import "./node_modules/bulma/sass/components/navbar.sass";
 @import "./node_modules/bulma/sass/components/card.sass";
 @import "./node_modules/bulma/sass/components/dropdown.sass";
+@import "./node_modules/bulma/sass/layout/section.sass";
