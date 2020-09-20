@@ -35,7 +35,7 @@
             <h3 class="title is-small is-3">{ route[0] }</h3>
             {#each Object.entries(route[1]) as method, methodIdx}
               <div class="swagger-method swagger-method-{ method[0] }">
-                <div class="swagger-method-title" on:click="{() =>  active[`${routeIdx}`] = !active[`${routeIdx}`]}">
+                <div class="swagger-method-title" on:click="{() =>  active[`${routeIdx}-${methodIdx}`] = !active[`${routeIdx}-${methodIdx}`]}">
                   <a class="swagger-method-link" href="{null}">
                     <span class="swagger-method-name">{ method[0] }</span>
                     {#if method[1].summary}
@@ -43,7 +43,7 @@
                     {/if}
                   </a>
                 </div>
-                <div class="swagger-method-details open" class:open={active[`${routeIdx}`]} >
+                <div class="swagger-method-details open" class:open={active[`${routeIdx}-${methodIdx}`]} >
                   {#if method[1].requestBody && method[1].requestBody.content}
                   {#each Object.entries(method[1].requestBody.content) as requestBody }
                     <div class="swagger-parameters">
