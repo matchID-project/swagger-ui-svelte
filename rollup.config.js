@@ -5,8 +5,16 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
+import sass from 'rollup-plugin-sass';
+import postcss from 'postcss'
 
+const mode = process.env.NODE_ENV;
 const production = !process.env.ROLLUP_WATCH;
+
+const purgecss = require("@fullhuman/postcss-purgecss")({
+  content: ["./src/**/*.svelte", "./src/**/*.html"],
+  defaultExtractor: content => content.match(/[A-Za-z0-9-_:/]+/g) || []
+});
 
 function serve() {
 	let server;
@@ -38,6 +46,17 @@ export default {
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
+    sass({
+      includePaths: ['src/scss', 'node_modules'],
+      output: 'public/global.css',
+      processor: css => postcss(...(mode === "production" ? [purgecss] : []))
+      .process(css)
+      .then(result => result.css),
+      options: {
+        outputStyle: 'compressed',
+        sourceMap: false,
+      }
+    }),
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
