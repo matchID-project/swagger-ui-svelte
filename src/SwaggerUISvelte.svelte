@@ -30,6 +30,11 @@
     <div class="container">
       {#if swagger}
         <h1 class="title">{swagger.info.title}</h1>
+        <h2 class="subtitle">{swagger.info.description} - {swagger.info.version}</h2>
+        <p>
+          <a href="{swagger.info.contact.url}" target="_blank">{swagger.info.contact.name}</a> - 
+          {swagger.info.contact.email}
+        </p>
         {#each Object.entries(swagger.paths) as route, routeIdx}
           <div class="swagger-paths is-small">
             <h3 class="title is-small is-3">{ route[0] }</h3>
@@ -166,8 +171,6 @@
           </div>
         {/each}
       {/if}
-
-
 
     </div>
   </section>
