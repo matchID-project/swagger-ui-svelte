@@ -35,6 +35,7 @@
                   {#if method[1].parameters}
                     <div class="swagger-parameters">
                       <h4>Parameters</h4>
+                      <div class="table-container">
                       <table class="table is-hoverable">
                         <thead>
                           <tr>
@@ -75,6 +76,7 @@
                           {/each}
                         </tbody>
                       </table>
+                      </div>
                     </div>
                   {/if}
                   {#if method[1].responses}
