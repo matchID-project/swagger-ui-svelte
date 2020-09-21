@@ -23,6 +23,7 @@
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.0",
     "bulma": "^0.9.0",
+    "eslint-plugin-svelte3": "^2.7.3",
     "rollup": "^2.3.4",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-sass": "^1.2.2",
