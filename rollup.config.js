@@ -106,12 +106,21 @@ export default [
   {
     input: "src/SwaggerUISvelte.svelte",
     output: { file: pkg.main, format: "umd", name: "SwaggerUISvelte" },
-    plugins: [svelte(), resolve(), commonjs()]
+    plugins: [svelte({preprocess: sveltePreprocess()}),
+      typescript({
+        sourceMap: !production,
+        inlineSources: !production
+      }),
+      resolve(), commonjs()]
   },
   {
     input: "src/SwaggerUISvelte.svelte",
     output: { file: pkg.module, format: "es" },
     external: ["svelte/internal"],
-    plugins: [svelte(), commonjs()]
+    plugins: [svelte({preprocess: sveltePreprocess()}),
+      typescript({
+        sourceMap: !production,
+        inlineSources: !production
+      }), commonjs()]
   }
 ];

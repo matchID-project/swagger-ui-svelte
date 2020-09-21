@@ -1,19 +1,25 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  export let swagger_url = 'swagger-example.json';
+  import type { OpenAPIV3 } from "openapi-types";
+
+  export let swaggerUrl = 'swagger-example.json';
 
   let active = {};
-  let swagger;
+  let swagger: OpenAPIV3.Document = null;
 
-  onMount(async () => {
-    const res = await fetch(swagger_url)
+  const loadSwagger = async (swaggerUrl: string) => {
+    const res = await fetch(swaggerUrl)
     swagger = await res.json()
-  })
+  }
 
-  const getSchema = (refName) => {
+  const getSchema = (refName: string) => {
     const division = refName.replace("#/", "").split("/")
     return swagger[division[0]][division[1]][division[2]]
   }
+
+  onMount(() => {
+    loadSwagger(swaggerUrl)
+  })
 
 </script>
 
