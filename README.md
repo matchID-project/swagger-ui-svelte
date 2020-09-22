@@ -33,7 +33,7 @@ An example of how to use the library
   import SwaggerUISvelte from "swagger-ui-svelte";
 </script>
 
-<SwaggerUISvelte swagger_url="/swagger.json" />
+<SwaggerUISvelte swaggerUrl="/swagger.json" />
 ```
 
 ## Properties
@@ -42,4 +42,4 @@ Component props:
 
 | Prop            | Type   | Default              | Description               |
 | --------------- | ------ | -------              | ------------------------- |
-| `swagger_url`   | string | swagger-example.json | URL for swagger.json file |
+| `swaggerUrl`   | string | swagger-example.json | URL for swagger.json file |
