@@ -1,15 +1,23 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { loadSwagger, getSchema } from './utils';
-  import { swagger} from "./stores";
-
-  let swaggerLocal = null;
-
-  swagger.subscribe((v) => { swaggerLocal = v });
+  // compatibility issues when importing module
+  // import type { OpenAPIV3 } from "openapi-types";
+  // let swagger: OpenAPIV3.Document = null;
 
   export let swaggerUrl = 'swagger-example.json';
 
+  let swagger = null;
   let active = {};
+
+  const loadSwagger = async (swaggerUrl: string) => {
+    const res = await fetch(swaggerUrl)
+    swagger = await res.json()
+  }
+
+  const getSchema = (refName: string) => {
+    const division = refName.replace("#/", "").split("/")
+    return swagger[division[0]][division[1]][division[2]]
+  }
 
   onMount(() => {
     loadSwagger(swaggerUrl)
@@ -18,8 +26,8 @@
 </script>
 
 <svelte:head>
-  {#if swaggerLocal}
-    <title>{swaggerLocal.info.title}</title>
+  {#if swagger}
+    <title>{swagger.info.title}</title>
   {:else}
     <title>Swagger UI using Svelte</title>
   {/if}
@@ -28,16 +36,16 @@
 <main>
   <section class="section">
     <div class="container">
-      {#if swaggerLocal}
-        <h1 class="title">{swaggerLocal.info.title}</h1>
-        <h2 class="subtitle">{swaggerLocal.info.description} - {swaggerLocal.info.version}</h2>
+      {#if swagger}
+        <h1 class="title">{swagger.info.title}</h1>
+        <h2 class="subtitle">{swagger.info.description} - {swagger.info.version}</h2>
         <p>
-          {#if swaggerLocal.info.contact}
-          <a href="{swaggerLocal.info.contact.url}" target="_blank">{swaggerLocal.info.contact.name}</a> - 
-          {swaggerLocal.info.contact.email}
+          {#if swagger.info.contact}
+          <a href="{swagger.info.contact.url}" target="_blank">{swagger.info.contact.name}</a> - 
+          {swagger.info.contact.email}
           {/if}
         </p>
-        {#each Object.entries(swaggerLocal.paths) as route, routeIdx}
+        {#each Object.entries(swagger.paths) as route, routeIdx}
           <div class="swagger-paths is-small">
             <h3 class="title is-small is-3">{ route[0] }</h3>
             {#each Object.entries(route[1]) as method, methodIdx}
