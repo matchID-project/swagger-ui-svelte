@@ -32,8 +32,10 @@
         <h1 class="title">{swaggerLocal.info.title}</h1>
         <h2 class="subtitle">{swaggerLocal.info.description} - {swaggerLocal.info.version}</h2>
         <p>
+          {#if swaggerLocal.info.contact}
           <a href="{swaggerLocal.info.contact.url}" target="_blank">{swaggerLocal.info.contact.name}</a> - 
           {swaggerLocal.info.contact.email}
+          {/if}
         </p>
         {#each Object.entries(swaggerLocal.paths) as route, routeIdx}
           <div class="swagger-paths is-small">
