@@ -9,12 +9,12 @@
   let swagger = null;
   let active = {};
 
-  const loadSwagger = async (swaggerUrl: string) => {
+  const loadSwagger = async (swaggerUrl) => {
     const res = await fetch(swaggerUrl)
     swagger = await res.json()
   }
 
-  const getSchema = (refName: string) => {
+  const getSchema = (refName) => {
     const division = refName.replace("#/", "").split("/")
     return swagger[division[0]][division[1]][division[2]]
   }
