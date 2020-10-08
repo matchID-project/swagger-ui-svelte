@@ -8,6 +8,7 @@
 
   let swagger = null;
   let active = {};
+  let requestParams = {}
   let swaggerOrganized = {};
 
   const loadSwagger = async (swaggerUrl) => {
@@ -43,6 +44,31 @@
   const getSchema = (refName) => {
     const division = refName.replace("#/", "").split("/")
     return swagger[division[0]][division[1]][division[2]]
+  }
+
+  const handleRequest = async (route, method, routeIdx, methodIdx) => {
+    const req = Object.entries(requestParams).filter(x => x[0].indexOf(`${routeIdx}-${methodIdx}-`) > -1)
+    const params = {}
+    if (req.length > 0) {
+      req.forEach(x => params[`${x[0].split("-")[2]}`] = x[1])
+    }
+
+    const queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+    const url = `${route}?${queryString}`
+    const response = await fetch(url, {
+      method: method.toUpperCase(), // *GET, POST, PUT, DELETE, etc.
+      // mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json'
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      // body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
   }
 
   onMount(() => {
@@ -143,7 +169,7 @@
                     </div>
                   {/each}
                   {/if}
-                  {#if method.parameters}
+                  {#if method.parameters && method.parameters.length > 0}
                     <div class="swagger-parameters">
                       <h4 class="subtitle">Parameters</h4>
                       <div class="table-container">
@@ -170,7 +196,9 @@
                                   </span>
                                 {/if}
                               </td>
-                              <td>{ parameter.in }</td>
+                              <td>
+                                <input class="input is-rounded" type="text" placeholder="{parameter.name}" bind:value={requestParams[`${routeIdx}-${methodIdx}-${parameter.name}`]} >
+                              </td>
                               <td>{@html parameter.description }</td>
                               <td>
                                 {#if parameter.type}
@@ -189,6 +217,11 @@
                       </table>
                       </div>
                     </div>
+                  {/if}
+                  {#if (method.parameters && method.parameters.length > 0) || (method.requestBody && method.requestBody.content)}
+                  <button class="button is-primary is-fullwidth" on:click={() => handleRequest(method.route, method.method, routeIdx, methodIdx)}>
+                    Execute
+                  </button>
                   {/if}
                   {#if method.responses}
                     <div class="swagger-response">
