@@ -10,6 +10,7 @@
   let active = {};
   let responses = {};
   let requestParams = {}
+  let requestBodyExample = {}
   let swaggerOrganized = {};
 
   const loadSwagger = async (swaggerUrl) => {
@@ -34,6 +35,10 @@
        }
      })
     })
+
+    console.log("iiii", swaggerOrganized);
+    // method.requestBody.content
+    // JSON.stringify(getSchema(requestBody[1]["schema"]["$ref"]).example)
   }
 
   const useFilter = (arr) => {
@@ -48,10 +53,12 @@
   }
 
   const handleRequest = async (route, method, routeIdx, methodIdx) => {
-    const req = Object.entries(requestParams).filter(x => x[0].indexOf(`${routeIdx}-${methodIdx}-`) > -1)
+  console.log("smaple", requestBodyExample);
+    // const reqBody = Object.entries(requestBodyExample).filter(x => x[0].indexOf(`${routeIdx}-${methodIdx}-`) > -1)
+    const reqParams = Object.entries(requestParams).filter(x => x[0].indexOf(`${routeIdx}-${methodIdx}-`) > -1)
     const params = {}
-    if (req.length > 0) {
-      req.forEach(x => params[`${x[0].split("-")[2]}`] = x[1])
+    if (reqParams.length > 0) {
+      reqParams.forEach(x => params[`${x[0].split("-")[2]}`] = x[1])
     }
 
     const queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
@@ -69,12 +76,15 @@
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       // body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
+    console.log(response);
     responses[`${routeIdx}-${methodIdx}`] = response
     //response.json(); // parses JSON response into native JavaScript objects
   }
 
   onMount(() => {
     loadSwagger(swaggerUrl)
+    
+
   })
 
 </script>
@@ -128,7 +138,7 @@
                             <tr>
                         </thead>
                         <tbody>
-                          {#if '$ref' in requestBody[1]["schema"]}
+                            {#if '$ref' in requestBody[1]["schema"]}
                             {#each Object.entries(getSchema(requestBody[1]["schema"]["$ref"]).properties) as property}
                             <tr>
                               <td>
@@ -145,7 +155,7 @@
                                 {/if}
                               </td>
                             </tr>
-                          {/each}
+                            {/each}
                           {:else}
                           {#each Object.entries(requestBody[1]["schema"]["properties"]) as property}
                             <tr>
@@ -167,6 +177,13 @@
                           {/if}
                         </tbody>
                       </table>
+                      {#if '$ref' in requestBody[1]["schema"]}
+                        Example:
+bind:value={getSchema(requestBody[1]["schema"]["$ref"]).example}
+{JSON.stringify(getSchema(requestBody[1]["schema"]["$ref"]).example)}
+                        <textarea class="textarea has-fixed-size" placeholder="Fixed size textarea" ></textarea>
+                      {/if}
+
                       </div>
                     </div>
                   {/each}
@@ -179,8 +196,9 @@
                         <thead>
                           <tr>
                             <th>Name</th>
-                            <th>Located in</th>
+                            <th>Input</th>
                             <th>Description</th>
+                            <th>Located in</th>
                             <th>Type</th>
                             <tr>
                         </thead>
@@ -202,6 +220,7 @@
                                 <input class="input is-rounded" type="text" placeholder="{parameter.name}" bind:value={requestParams[`${routeIdx}-${methodIdx}-${parameter.name}`]} >
                               </td>
                               <td>{@html parameter.description }</td>
+                              <td>{parameter.in }</td>
                               <td>
                                 {#if parameter.type}
                                   { parameter.type}
