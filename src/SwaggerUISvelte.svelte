@@ -8,10 +8,36 @@
 
   let swagger = null;
   let active = {};
+  let swaggerOrganized = {};
 
   const loadSwagger = async (swaggerUrl) => {
     const res = await fetch(swaggerUrl)
     swagger = await res.json()
+
+    Object.entries(swagger.paths).forEach(route => {
+     const category =  Object.values(route[1])[0].tags[0];
+     Object.entries(route[1]).map(method => {
+       if (category in swaggerOrganized) {
+         swaggerOrganized[category].push({
+         route: route[0],
+         method: method[0],
+         ...method[1]
+        });
+       } else {
+         swaggerOrganized[category] = [{
+         route: route[0],
+         method: method[0],
+         ...method[1]
+        }];
+       }
+     })
+    })
+  }
+
+  const useFilter = (arr) => {
+    return arr.filter((elem, pos, array) => {
+      return array.indexOf(elem) == pos;
+    });
   }
 
   const getSchema = (refName) => {
@@ -45,22 +71,23 @@
           {swagger.info.contact.email}
           {/if}
         </p>
-        {#each Object.entries(swagger.paths) as route, routeIdx}
+        {#each Object.entries(swaggerOrganized) as category, routeIdx}
           <div class="swagger-paths is-small">
-            <h3 class="title is-small is-3">{ route[0] }</h3>
-            {#each Object.entries(route[1]) as method, methodIdx}
-              <div class="swagger-method swagger-method-{ method[0] }">
+            <h3 class="title is-small is-3">{ category[0] }</h3>
+            {#each category[1] as method, methodIdx}
+              <div class="swagger-method swagger-method-{ method.method }">
                 <div class="swagger-method-title" on:click="{() =>  active[`${routeIdx}-${methodIdx}`] = !active[`${routeIdx}-${methodIdx}`]}">
                   <a class="swagger-method-link" href="{null}">
-                    <span class="swagger-method-name">{ method[0] }</span>
-                    {#if method[1].summary}
-                      { method[1].summary }
+                    <span class="swagger-method-name">{method.method}</span>
+                    {method.route}
+                    {#if method.summary}
+                      - { method.summary }
                     {/if}
                   </a>
                 </div>
                 <div class="swagger-method-details open" class:open={active[`${routeIdx}-${methodIdx}`]} >
-                  {#if method[1].requestBody && method[1].requestBody.content}
-                  {#each Object.entries(method[1].requestBody.content) as requestBody }
+                  {#if method.requestBody && method.requestBody.content}
+                  {#each Object.entries(method.requestBody.content) as requestBody }
                     <div class="swagger-parameters">
                       <h4 class="subtitle">Request Body - {requestBody[0]}</h4>
                       <div class="table-container">
@@ -116,7 +143,7 @@
                     </div>
                   {/each}
                   {/if}
-                  {#if method[1].parameters}
+                  {#if method.parameters}
                     <div class="swagger-parameters">
                       <h4 class="subtitle">Parameters</h4>
                       <div class="table-container">
@@ -130,7 +157,7 @@
                             <tr>
                         </thead>
                         <tbody>
-                          {#each method[1].parameters as parameter}
+                          {#each method.parameters as parameter}
                             <tr>
                               <td>
                                 {#if parameter.required}
@@ -163,10 +190,10 @@
                       </div>
                     </div>
                   {/if}
-                  {#if method[1].responses}
+                  {#if method.responses}
                     <div class="swagger-response">
                       <h4>Responses</h4>
-                      {#each Object.entries(method[1].responses) as response}
+                      {#each Object.entries(method.responses) as response}
                         <h5>
                           <span class="swagger-response-code">{ response[0] }</span>
                           { response[1].description }
