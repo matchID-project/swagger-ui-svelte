@@ -8,6 +8,7 @@
 
   let swagger = null;
   let active = {};
+  let responses = {};
   let requestParams = {}
   let swaggerOrganized = {};
 
@@ -68,7 +69,8 @@
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       // body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
-    return response.json(); // parses JSON response into native JavaScript objects
+    responses[`${routeIdx}-${methodIdx}`] = response
+    //response.json(); // parses JSON response into native JavaScript objects
   }
 
   onMount(() => {
@@ -223,14 +225,62 @@
                     Execute
                   </button>
                   {/if}
+                  {#if responses[`${routeIdx}-${methodIdx}`] }
+                    <p> {responses[`${routeIdx}-${methodIdx}`].url}
+                    </p>
+                    <div class="columns">
+                      <div class="column is-narrow">
+                        {responses[`${routeIdx}-${methodIdx}`].status}
+                      </div>
+                      <div class="column">
+                        {responses[`${routeIdx}-${methodIdx}`].statusText}
+                        <pre><code>
+                        {[...responses[`${routeIdx}-${methodIdx}`].headers.entries()].map(x => x.join(": ")).join(" \n")}
+                        </code></pre>
+                      </div>
+                    </div>
+                  {/if}
                   {#if method.responses}
                     <div class="swagger-response">
                       <h4>Responses</h4>
                       {#each Object.entries(method.responses) as response}
                         <h5>
-                          <span class="swagger-response-code">{ response[0] }</span>
-                          { response[1].description }
                         </h5>
+                        <div class="columns">
+                          {#each Object.entries(response[1].content) as content}
+                          <div class="column is-narrow">
+                            {response[0]}
+                          </div>
+                          <div class="column">
+                            <p>
+                              { response[1].description }
+                            </p>
+                            <p>
+                              {content[0]}
+                            </p>
+                            {#if '$ref' in content[1].schema}
+                              <ul>
+                                Example: <br>
+                                <pre><code>
+                                {JSON.stringify(getSchema(content[1].schema["$ref"]).example, null, 2)}
+                                </code></pre>
+                            {#each Object.entries(getSchema(content[1].schema["$ref"]).properties) as property}
+                              <!---
+                            {#each Object.entries(property[1]) as responseProperties}
+                              {#if responseProperties[0] === '$ref'}
+                                Schema: <br>
+                                <pre><code>
+                                {JSON.stringify(getSchema(responseProperties[1]), null, 2)}
+                                </code></pre>
+                              {/if}
+                            {/each}
+                            --->
+                            {/each}
+                              </ul>
+                            {/if}
+                          </div>
+                          {/each}
+                        </div>
                       {/each}
                     </div>
                   {/if}
