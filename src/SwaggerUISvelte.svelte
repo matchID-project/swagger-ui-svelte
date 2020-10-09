@@ -7,6 +7,7 @@
   export let swaggerUrl = 'swagger-example.json';
 
   let swagger = null;
+  let baseurl = '';
   let active = {};
   let responses = {};
   let requestParams = {}
@@ -16,6 +17,7 @@
   const loadSwagger = async (swaggerUrl) => {
     const res = await fetch(swaggerUrl)
     swagger = await res.json()
+    baseurl = swagger.servers[0].url
 
     Object.entries(swagger.paths).forEach((route, routeIdx) => {
      const category =  Object.values(route[1])[0].tags[0];
@@ -68,7 +70,7 @@
     }
 
     const queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-    const url = `${route}?${queryString}`
+    const url = `${baseurl}${route}?${queryString}`
     const response = await fetch(url, {
       method: method.toUpperCase(), // *GET, POST, PUT, DELETE, etc.
       // mode: 'cors', // no-cors, *cors, same-origin
@@ -114,6 +116,8 @@
           {swagger.info.contact.email}
           {/if}
         </p>
+        <input class="input" type="text" placeholder="Server URL" bind:value={baseurl} >
+
         {#each Object.entries(paths) as category, routeIdx}
           <div class="swagger-paths is-small">
             <h3 class="title is-small is-3">{ category[0] }</h3>
@@ -219,7 +223,7 @@
                                 {/if}
                               </td>
                               <td>
-                                <input class="input is-rounded" type="text" placeholder="{parameter.name}" bind:value={requestParams[`${method['id']}-${parameter.name}`]} >
+                                <input class="input" type="text" placeholder="{parameter.name}" bind:value={requestParams[`${method['id']}-${parameter.name}`]} >
                               </td>
                               <td>{@html parameter.description }</td>
                               <td>{parameter.in }</td>
