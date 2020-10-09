@@ -11,34 +11,40 @@
   let responses = {};
   let requestParams = {}
   let requestBodyExample = {}
-  let swaggerOrganized = {};
+  let paths = {};
 
   const loadSwagger = async (swaggerUrl) => {
     const res = await fetch(swaggerUrl)
     swagger = await res.json()
 
-    Object.entries(swagger.paths).forEach(route => {
+    Object.entries(swagger.paths).forEach((route, routeIdx) => {
      const category =  Object.values(route[1])[0].tags[0];
-     Object.entries(route[1]).map(method => {
-       if (category in swaggerOrganized) {
-         swaggerOrganized[category].push({
-         route: route[0],
-         method: method[0],
-         ...method[1]
+     Object.entries(route[1]).map((method, methodIdx) => {
+       if (method[1].requestBody) {
+         Object.entries(method[1].requestBody.content).forEach((item, fiel) => {
+           if ('$ref' in item[1].schema) {
+             console.log("method", routeIdx, methodIdx, fiel, getSchema(item[1].schema['$ref']).example);
+             requestBodyExample[`${routeIdx}-${methodIdx}`] = JSON.stringify(getSchema(item[1].schema['$ref']).example, null, 2)
+           }
+         })
+       }
+       if (category in paths) {
+         paths[category].push({
+           id: `${routeIdx}-${methodIdx}`,
+           route: route[0],
+           method: method[0],
+           ...method[1]
         });
        } else {
-         swaggerOrganized[category] = [{
-         route: route[0],
-         method: method[0],
-         ...method[1]
+         paths[category] = [{
+           id: `${routeIdx}-${methodIdx}`,
+           route: route[0],
+           method: method[0],
+           ...method[1]
         }];
        }
      })
     })
-
-    console.log("iiii", swaggerOrganized);
-    // method.requestBody.content
-    // JSON.stringify(getSchema(requestBody[1]["schema"]["$ref"]).example)
   }
 
   const useFilter = (arr) => {
@@ -52,9 +58,8 @@
     return swagger[division[0]][division[1]][division[2]]
   }
 
-  const handleRequest = async (route, method, routeIdx, methodIdx) => {
-  console.log("smaple", requestBodyExample);
-    // const reqBody = Object.entries(requestBodyExample).filter(x => x[0].indexOf(`${routeIdx}-${methodIdx}-`) > -1)
+  const handleRequest = async (route, method, routeIdx, methodIdx, methodId) => {
+    console.log(requestBodyExample[methodId])
     const reqParams = Object.entries(requestParams).filter(x => x[0].indexOf(`${routeIdx}-${methodIdx}-`) > -1)
     const params = {}
     if (reqParams.length > 0) {
@@ -109,7 +114,7 @@
           {swagger.info.contact.email}
           {/if}
         </p>
-        {#each Object.entries(swaggerOrganized) as category, routeIdx}
+        {#each Object.entries(paths) as category, routeIdx}
           <div class="swagger-paths is-small">
             <h3 class="title is-small is-3">{ category[0] }</h3>
             {#each category[1] as method, methodIdx}
@@ -179,11 +184,8 @@
                       </table>
                       {#if '$ref' in requestBody[1]["schema"]}
                         Example:
-bind:value={getSchema(requestBody[1]["schema"]["$ref"]).example}
-{JSON.stringify(getSchema(requestBody[1]["schema"]["$ref"]).example)}
-                        <textarea class="textarea has-fixed-size" placeholder="Fixed size textarea" ></textarea>
+                        <textarea class="textarea has-fixed-size" placeholder="Fixed size textarea" bind:value={requestBodyExample[method['id']]}></textarea>
                       {/if}
-
                       </div>
                     </div>
                   {/each}
@@ -240,7 +242,7 @@ bind:value={getSchema(requestBody[1]["schema"]["$ref"]).example}
                     </div>
                   {/if}
                   {#if (method.parameters && method.parameters.length > 0) || (method.requestBody && method.requestBody.content)}
-                  <button class="button is-primary is-fullwidth" on:click={() => handleRequest(method.route, method.method, routeIdx, methodIdx)}>
+                  <button class="button is-primary is-fullwidth" on:click={() => handleRequest(method.route, method.method, routeIdx, methodIdx, method.id)}>
                     Execute
                   </button>
                   {/if}
