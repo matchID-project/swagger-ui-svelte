@@ -20,24 +20,25 @@
     Object.entries(swagger.paths).forEach((route, routeIdx) => {
      const category =  Object.values(route[1])[0].tags[0];
      Object.entries(route[1]).map((method, methodIdx) => {
+       const id = `${routeIdx}-${methodIdx}`
        if (method[1].requestBody) {
          Object.entries(method[1].requestBody.content).forEach((item, fiel) => {
            if ('$ref' in item[1].schema) {
              console.log("method", routeIdx, methodIdx, fiel, getSchema(item[1].schema['$ref']).example);
-             requestBodyExample[`${routeIdx}-${methodIdx}`] = JSON.stringify(getSchema(item[1].schema['$ref']).example, null, 2)
+             requestBodyExample[id] = JSON.stringify(getSchema(item[1].schema['$ref']).example, null, 2)
            }
          })
        }
        if (category in paths) {
          paths[category].push({
-           id: `${routeIdx}-${methodIdx}`,
+           id,
            route: route[0],
            method: method[0],
            ...method[1]
         });
        } else {
          paths[category] = [{
-           id: `${routeIdx}-${methodIdx}`,
+           id,
            route: route[0],
            method: method[0],
            ...method[1]
@@ -58,9 +59,9 @@
     return swagger[division[0]][division[1]][division[2]]
   }
 
-  const handleRequest = async (route, method, routeIdx, methodIdx, methodId) => {
+  const handleRequest = async (route, method, methodId) => {
     console.log(requestBodyExample[methodId])
-    const reqParams = Object.entries(requestParams).filter(x => x[0].indexOf(`${routeIdx}-${methodIdx}-`) > -1)
+    const reqParams = Object.entries(requestParams).filter(x => x[0].indexOf(methodId) > -1)
     const params = {}
     if (reqParams.length > 0) {
       reqParams.forEach(x => params[`${x[0].split("-")[2]}`] = x[1])
@@ -79,10 +80,9 @@
       },
       redirect: 'follow', // manual, *follow, error
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      // body: JSON.stringify(data) // body data type must match "Content-Type" header
+      body: requestBodyExample[methodId] // JSON.stringify(data) // body data type must match "Content-Type" header
     });
-    console.log(response);
-    responses[`${routeIdx}-${methodIdx}`] = response
+    responses[methodId] = response
     //response.json(); // parses JSON response into native JavaScript objects
   }
 
@@ -119,7 +119,7 @@
             <h3 class="title is-small is-3">{ category[0] }</h3>
             {#each category[1] as method, methodIdx}
               <div class="swagger-method swagger-method-{ method.method }">
-                <div class="swagger-method-title" on:click="{() =>  active[`${routeIdx}-${methodIdx}`] = !active[`${routeIdx}-${methodIdx}`]}">
+                <div class="swagger-method-title" on:click="{() =>  active[method['id']] = !active[method['id']]}">
                   <a class="swagger-method-link" href="{null}">
                     <span class="swagger-method-name">{method.method}</span>
                     {method.route}
@@ -128,7 +128,7 @@
                     {/if}
                   </a>
                 </div>
-                <div class="swagger-method-details open" class:open={active[`${routeIdx}-${methodIdx}`]} >
+                <div class="swagger-method-details open" class:open={active[method['id']]} >
                   {#if method.requestBody && method.requestBody.content}
                   {#each Object.entries(method.requestBody.content) as requestBody }
                     <div class="swagger-parameters">
@@ -219,7 +219,7 @@
                                 {/if}
                               </td>
                               <td>
-                                <input class="input is-rounded" type="text" placeholder="{parameter.name}" bind:value={requestParams[`${routeIdx}-${methodIdx}-${parameter.name}`]} >
+                                <input class="input is-rounded" type="text" placeholder="{parameter.name}" bind:value={requestParams[`${method['id']}-${parameter.name}`]} >
                               </td>
                               <td>{@html parameter.description }</td>
                               <td>{parameter.in }</td>
@@ -242,21 +242,21 @@
                     </div>
                   {/if}
                   {#if (method.parameters && method.parameters.length > 0) || (method.requestBody && method.requestBody.content)}
-                  <button class="button is-primary is-fullwidth" on:click={() => handleRequest(method.route, method.method, routeIdx, methodIdx, method.id)}>
+                  <button class="button is-primary is-fullwidth" on:click={() => handleRequest(method.route, method.method, method.id)}>
                     Execute
                   </button>
                   {/if}
-                  {#if responses[`${routeIdx}-${methodIdx}`] }
-                    <p> {responses[`${routeIdx}-${methodIdx}`].url}
+                  {#if responses[method['id']] }
+                    <p> {responses[method['id']].url}
                     </p>
                     <div class="columns">
                       <div class="column is-narrow">
-                        {responses[`${routeIdx}-${methodIdx}`].status}
+                        {responses[method['id']].status}
                       </div>
                       <div class="column">
-                        {responses[`${routeIdx}-${methodIdx}`].statusText}
+                        {responses[method['id']].statusText}
                         <pre><code>
-                        {[...responses[`${routeIdx}-${methodIdx}`].headers.entries()].map(x => x.join(": ")).join(" \n")}
+                        {[...responses[method['id']].headers.entries()].map(x => x.join(": ")).join(" \n")}
                         </code></pre>
                       </div>
                     </div>
