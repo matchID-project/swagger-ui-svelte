@@ -35,8 +35,6 @@ jobs:
         run: npm ci
       - name: 🏗 Build html
         run: |
-          sed -i "s/href='/href='\/swagger-ui-svelte/"  public/index.html
-          sed -i "s/src='/src='\/swagger-ui-svelte/"  public/index.html
           NODE_ENV=production npm run build
       - name: 🚀 Deploy to GitHub pages
         if: startsWith(github.event.ref, 'refs/tags') || steps.extract_branch.outputs.branch == 'master'
