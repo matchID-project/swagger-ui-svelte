@@ -32,7 +32,6 @@
        if (method[1].requestBody) {
          Object.entries(method[1].requestBody.content).forEach((item, fiel) => {
            if ('$ref' in item[1].schema) {
-             console.log("method", routeIdx, methodIdx, fiel, getSchema(item[1].schema['$ref']).example);
              requestBodyExample[id] = JSON.stringify(getSchema(item[1].schema['$ref']).example, null, 2)
            }
          })
@@ -56,19 +55,12 @@
     })
   }
 
-  const useFilter = (arr) => {
-    return arr.filter((elem, pos, array) => {
-      return array.indexOf(elem) == pos;
-    });
-  }
-
   const getSchema = (refName) => {
     const division = refName.replace("#/", "").split("/")
     return swagger[division[0]][division[1]][division[2]]
   }
 
   const handleRequest = async (route, method, methodId) => {
-    console.log(requestBodyExample[methodId])
     const reqParams = Object.entries(requestParams).filter(x => x[0].indexOf(methodId) > -1)
     const params = {}
     if (reqParams.length > 0) {
@@ -76,7 +68,7 @@
     }
 
     const queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-    const url = `${baseurl}${route}?${queryString}`
+    const url = `${baseurl}${route}${queryString ? `?${queryString}` : ''}`
     const response = await fetch(url, {
       method: method.toUpperCase(), // *GET, POST, PUT, DELETE, etc.
       // mode: 'cors', // no-cors, *cors, same-origin
@@ -122,7 +114,7 @@
           {swagger.info.contact.email}
           {/if}
         </p>
-        <input class="input" type="text" placeholder="Server URL" bind:value={baseurl} >
+        <input class="input is-info" type="text" placeholder="Server URL" bind:value={baseurl} >
 
         {#each Object.entries(paths) as category, routeIdx}
           <div class="swagger-paths is-small">
@@ -251,23 +243,30 @@
                       </div>
                     </div>
                   {/if}
-                  {#if (method.parameters && method.parameters.length > 0) || (method.requestBody && method.requestBody.content)}
                   <button class="button is-primary is-fullwidth" on:click={() => handleRequest(method.route, method.method, method.id)}>
                     Execute
                   </button>
-                  {/if}
                   {#if responses[method['id']] }
-                    <p> {responses[method['id']].url}
+                    <p>Url:  {responses[method['id']].url}
                     </p>
+                    <h4>Result</h4>
                     <div class="columns">
                       <div class="column is-narrow">
                         {responses[method['id']].status}
                       </div>
                       <div class="column">
-                        {responses[method['id']].statusText}
+                        <p> {responses[method['id']].statusText}
+                        </p>
+                        <p> Headers:
+                        </p>
                         <pre><code>
                         {[...responses[method['id']].headers.entries()].map(x => x.join(": ")).join(" \n")}
                         </code></pre>
+                        {#if Object.keys(responses[method['id']].body).length === 0 && responses[method['id']].body.constructor === Object}
+                          <p> Body:
+                          </p>
+                          {JSON.stringify(responses[method['id']].body, null, 2)}
+                        {/if}
                       </div>
                     </div>
                   {/if}
