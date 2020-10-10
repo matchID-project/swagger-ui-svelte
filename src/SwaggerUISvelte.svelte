@@ -1,3 +1,9 @@
+<script context="module">
+	export function getCwd() {
+    return require("path").resolve(__dirname, '../public')
+	}
+</script>
+
 <script lang="ts">
   import { onMount } from 'svelte';
   // compatibility issues when importing module
