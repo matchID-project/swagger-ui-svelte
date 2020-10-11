@@ -103,32 +103,40 @@
 </svelte:head>
 
 <main>
-  <section class="section">
-    <div class="container">
+
+    <div class="rf-container">
       {#if swagger}
         <h1 class="title">{swagger.info.title}</h1>
         <h2 class="subtitle">{swagger.info.description} - {swagger.info.version}</h2>
-        <p>
-          {#if swagger.info.contact}
+    <div class="rf-grid-row">
+      {#if swagger.info.contact}
+        <div class="rf-col-xs-12 rf-col-lg-4">
           <a href="{swagger.info.contact.url}" target="_blank">{swagger.info.contact.name}</a> - 
           {swagger.info.contact.email}
-          {/if}
-        </p>
-        <input class="input is-info" type="text" placeholder="Server URL" bind:value={baseurl} >
+        </div>
+      {/if}
+      <div class="rf-col-xs-12 rf-col-lg-4">
+        <input class="rf-input" type="text" placeholder="Server URL" bind:value={baseurl} >
+      </div>
+    </div>
 
         {#each Object.entries(paths) as category, routeIdx}
-          <div class="swagger-paths is-small">
+          <div class="box">
             <h3 class="title is-small is-3">{ category[0] }</h3>
             {#each category[1] as method, methodIdx}
-              <div class="swagger-method swagger-method-{ method.method }">
-                <div class="swagger-method-title" on:click="{() =>  active[method['id']] = !active[method['id']]}">
-                  <a class="swagger-method-link" href="{null}">
-                    <span class="swagger-method-name">{method.method}</span>
-                    {method.route}
-                    {#if method.summary}
-                      - { method.summary }
-                    {/if}
+              <div class="box">
+                <div class="rf-grid-row" on:click="{() =>  active[method['id']] = !active[method['id']]}">
+                  <a class="rf-btn rf-background--{method.method}" href="{null}">
+                    {method.method}
                   </a>
+                  <div class="rf-btn rf-btn--secondary">
+                    {method.route}
+                  </div>
+                  {#if method.summary}
+                    <div class="rf-btn rf-btn--secondary">
+                    { method.summary }
+                    </div>
+                  {/if}
                 </div>
                 <div class="swagger-method-details open" class:open={active[method['id']]} >
                   {#if method.requestBody && method.requestBody.content}
@@ -136,7 +144,7 @@
                     <div class="swagger-parameters">
                       <h4 class="subtitle">Request Body - {requestBody[0]}</h4>
                       <div class="table-container">
-                      <table class="table is-hoverable is-fullwidth">
+                        <table class="rf-table" style="width: 100%;">
                         <thead>
                           <tr>
                             <th>Name</th>
@@ -184,9 +192,12 @@
                           {/if}
                         </tbody>
                       </table>
+                      <br>
                       {#if '$ref' in requestBody[1]["schema"]}
-                        Example:
-                        <textarea class="textarea has-fixed-size" placeholder="Fixed size textarea" bind:value={requestBodyExample[method['id']]}></textarea>
+                        <div class="rf-input-group">
+                          <label class="rf-label" for="textarea-{method['id']}">Example</label>
+                          <textarea class="rf-input" id="textarea-{method['id']}" name="textarea" placeholder="Fixed size textarea" bind:value={requestBodyExample[method['id']]}></textarea>
+                        </div>
                       {/if}
                       </div>
                     </div>
@@ -196,7 +207,7 @@
                     <div class="swagger-parameters">
                       <h4 class="subtitle">Parameters</h4>
                       <div class="table-container">
-                      <table class="table is-hoverable">
+                        <table class="rf-table" style="width: 100%;">
                         <thead>
                           <tr>
                             <th>Name</th>
@@ -221,7 +232,7 @@
                                 {/if}
                               </td>
                               <td>
-                                <input class="input" type="text" placeholder="{parameter.name}" bind:value={requestParams[`${method['id']}-${parameter.name}`]} >
+                                <input class="rf-input" type="text" placeholder="{parameter.name}" bind:value={requestParams[`${method['id']}-${parameter.name}`]} >
                               </td>
                               <td>{@html parameter.description }</td>
                               <td>{parameter.in }</td>
@@ -243,30 +254,32 @@
                       </div>
                     </div>
                   {/if}
-                  <button class="button is-primary is-fullwidth" on:click={() => handleRequest(method.route, method.method, method.id)}>
+                  <button class="rf-btn" on:click={() => handleRequest(method.route, method.method, method.id)}>
                     Execute
                   </button>
                   {#if responses[method['id']] }
                     <p>Url:  {responses[method['id']].url}
                     </p>
                     <h4>Result</h4>
-                    <div class="columns">
-                      <div class="column is-narrow">
-                        {responses[method['id']].status}
-                      </div>
-                      <div class="column">
-                        <p> {responses[method['id']].statusText}
-                        </p>
-                        <p> Headers:
-                        </p>
-                        <pre><code>
-                        {[...responses[method['id']].headers.entries()].map(x => x.join(": ")).join(" \n")}
-                        </code></pre>
-                        {#if Object.keys(responses[method['id']].body).length === 0 && responses[method['id']].body.constructor === Object}
-                          <p> Body:
+                    <div class="rf-callout">
+                      <div class="rf-grid-row">
+                        <div class="rf-col-xs-12 rf-col-lg-2">
+                          {responses[method['id']].status}
+                          <p> {responses[method['id']].statusText}
                           </p>
-                          {JSON.stringify(responses[method['id']].body, null, 2)}
-                        {/if}
+                        </div>
+                        <div class="rf-col-xs-12 rf-col-lg-10">
+                          <p> Headers:
+                          </p>
+                          <pre><code>
+                        {[...responses[method['id']].headers.entries()].map(x => x.join(": ")).join(" \n")}
+                          </code></pre>
+                          {#if Object.keys(responses[method['id']].body).length === 0 && responses[method['id']].body.constructor === Object}
+                            <p> Body:
+                            </p>
+                            {JSON.stringify(responses[method['id']].body, null, 2)}
+                          {/if}
+                        </div>
                       </div>
                     </div>
                   {/if}
@@ -274,42 +287,40 @@
                     <div class="swagger-response">
                       <h4>Responses</h4>
                       {#each Object.entries(method.responses) as response}
-                        <h5>
-                        </h5>
-                        <div class="columns">
-                          {#each Object.entries(response[1].content) as content}
-                          <div class="column is-narrow">
-                            {response[0]}
-                          </div>
-                          <div class="column">
-                            <p>
-                              { response[1].description }
-                            </p>
-                            <p>
-                              {content[0]}
-                            </p>
-                            {#if '$ref' in content[1].schema}
-                              <ul>
-                                Example: <br>
-                                <pre><code>
+                        <div class="rf-callout">
+                          <div class="rf-grid-row">
+                            {#each Object.entries(response[1].content) as content}
+                              <div class="rf-col-xs-12 rf-col-lg-2">
+                                {response[0]}
+                                <p>
+                                  { response[1].description }
+                                </p>
+                              </div>
+                              <div class="rf-col-xs-12 rf-col-lg-10">
+                                Content-type: {content[0]}
+                                {#if '$ref' in content[1].schema}
+                                  <ul>
+                                    Example: <br>
+                                    <pre><code>
                                 {JSON.stringify(getSchema(content[1].schema["$ref"]).example, null, 2)}
-                                </code></pre>
-                            {#each Object.entries(getSchema(content[1].schema["$ref"]).properties) as property}
-                              <!---
-                            {#each Object.entries(property[1]) as responseProperties}
-                              {#if responseProperties[0] === '$ref'}
-                                Schema: <br>
-                                <pre><code>
+                                    </code></pre>
+                                    {#each Object.entries(getSchema(content[1].schema["$ref"]).properties) as property}
+                                      <!---
+                                        {#each Object.entries(property[1]) as responseProperties}
+                                          {#if responseProperties[0] === '$ref'}
+                                            Schema: <br>
+                                            <pre><code>
                                 {JSON.stringify(getSchema(responseProperties[1]), null, 2)}
-                                </code></pre>
-                              {/if}
+                                            </code></pre>
+                                          {/if}
+                                        {/each}
+                                        --->
+                                    {/each}
+                                  </ul>
+                                {/if}
+                              </div>
                             {/each}
-                            --->
-                            {/each}
-                              </ul>
-                            {/if}
                           </div>
-                          {/each}
                         </div>
                       {/each}
                     </div>
@@ -317,11 +328,11 @@
 
                 </div>
               </div>
+              <br>
             {/each}
           </div>
         {/each}
       {/if}
 
     </div>
-  </section>
 </main>
