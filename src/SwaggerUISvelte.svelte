@@ -115,8 +115,10 @@
           {swagger.info.contact.email}
         </div>
       {/if}
+      <div class="rf-col-offset-4"></div>
       <div class="rf-col-xs-12 rf-col-lg-4">
-        <input class="rf-input" type="text" placeholder="Server URL" bind:value={baseurl} >
+        <label class="rf-label" for="text-input-text">Server:</label>
+        <input class="rf-input" type="text" placeholder="Server URL" bind:value={baseurl}  id="text-input-text" name="text-input-text">
       </div>
     </div>
 
