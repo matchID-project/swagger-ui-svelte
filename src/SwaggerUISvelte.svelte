@@ -300,7 +300,7 @@
                           {#if Object.keys(responses[method['id']].body).length === 0 && responses[method['id']].body.constructor === Object}
                             <p> Body:
                             </p>
-                            {JSON.stringify(responses[method['id']].body, null, 2)}
+                            {JSON.stringify(responses[method['id']].json(), null, 2)}
                           {/if}
                         </div>
                       </div>
